@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ContributionController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -40,5 +41,8 @@ Route::resource('roles', RoleController::class);
 
 //Route User
 Route::resource('users', UserController::class);
+
+//Route contribution
+Route::resource('contributions', ContributionController::class);
 
 
