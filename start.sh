@@ -1,4 +1,4 @@
-Cao Việt Hoàng
+
 #!/usr/bin/env bash
 echo "Running composer"
 composer global require hirak/prestissimo
