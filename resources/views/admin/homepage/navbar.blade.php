@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="homepage/css/flatpickr.min.css">
 
 
-    <title>Blogy &mdash; Free Bootstrap 5 Website Template by Untree.co</title>
+    <title>Greenwich blog student</title>
 </head>
 
 <body>
@@ -49,8 +49,9 @@
                 <div class="site-navigation">
                     <div class="row g-0 align-items-center">
                         <div class="col-2">
-                            <a href="index.html" class="logo m-0 float-start">CMS GREENWICH<span
-                                    class="text-primary"></span></a>
+                            {{-- <a href="{{ url('/') }}" class="logo m-0 float-start">CMS GREENWICH<span
+                                    class="text-primary"></span></a> --}}
+                                    <a class="logo m-0 float-start" href="{{ url('/') }}">Greenwich<sup>cms</sup></a>
                         </div>
                         <div class="col-8 text-center">
                             <form action="#" class="search-form d-inline-block d-lg-none">
