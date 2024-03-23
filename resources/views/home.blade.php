@@ -1,4 +1,4 @@
-@extends('layouts.app')
+{{-- @extends('homes.app')
 
 @section('content')
 <div class="container">
@@ -20,4 +20,19 @@
         </div>
     </div>
 </div>
-@endsection
+@endsection --}}
+
+<!-- /*
+* Template Name: Blogy
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+
+@include('admin.homes.navbar')
+
+@include('admin.homes.sidebar')
+
+@include('admin.homes.content')
+
+@include('admin.homes.fotter')
