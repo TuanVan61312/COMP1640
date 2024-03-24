@@ -1,4 +1,4 @@
-@extends('admin.homepage.master')
+@extends('admin.layouts.master')
 
 @section('content')
     <div class="container mt-5">
@@ -27,7 +27,7 @@
                                 <th>Event</th>                               
                                 <th>Delete</th>
                                 <th>Edit</th>
-
+                                <th>Dowload</th>
                             </tr>
                         </thead>
 
@@ -43,6 +43,7 @@
 										<td> {{ $con->file }} </td>
 										<td> {{ $con->submitted_on }} </td>
 										<td> {{ $con->event->title ?? '' }} </td>
+                                        
                                         {{-- Function Delete --}}
                                         <td>
                                                 <a href="" data-bs-toggle="modal" data-bs-target="#exampleModal{{ $con->id }}">
@@ -85,6 +86,10 @@
                                                 </a>
                                         </td>
                                         {{-- Update end --}}
+
+                                        <td>
+                                            <a href="{{ route('contributions.download', [$con->id]) }}" class="btn btn-primary">Zip File Dowload</a>
+                                        </td>
                                     </tr>
                                 @endforeach
                             @else

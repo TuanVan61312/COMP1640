@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Contribution;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class ContributionController extends Controller
 {
@@ -48,9 +50,23 @@ class ContributionController extends Controller
             'event_id' => 'required|integer',
         ]);
 
+        // if ($request->hasFile('file')) {
+        //     $file = $request->file('file')->getClientOriginalName();
+        //     $request->file('file')->move(public_path('uploads'), $file);
+        // }
+
         if ($request->hasFile('file')) {
-            $file = $request->file('file')->getClientOriginalName();
-            $request->file('file')->move(public_path('uploads'), $file);
+            $file = $request->file('file');
+    
+            // Tạo tên file mới với timestamp và đuôi mở rộng
+            $fileName = time() . '.' . $file->getClientOriginalExtension();
+    
+            // Lưu trữ file trong thư mục uploads
+            $file->move(public_path('storage'), $fileName);
+    
+            // Cập nhật mảng validatedData với đường dẫn file
+            $validatedData['file'] = $fileName;
+            // $validatedData['file'] = 'app/public/uploads/' . $fileName;
         }
 
         // Set submitted_on field to current time
@@ -103,5 +119,40 @@ class ContributionController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function download(Contribution $contribution){
+        try {
+            $filePath = $contribution->file;
+            $fullFilePath = public_path('storage' . $filePath);
+    
+            if (!file_exists($fullFilePath)) {
+                return response()->json(['error' => 'File không tồn tại'], 404);
+            }
+    
+            $zip = new ZipArchive();
+            $fileName = "my-zip-file.zip";
+
+            // $files = File::files($fullFilePath);
+            //     $filteredFiles = array_filter($files, function($file) use ($contribution) {
+            //         return basename($file) === $contribution->file;
+            //     });
+
+            if($zip->open($fileName, ZipArchive::CREATE)){
+                $files = File::files($fullFilePath);
+                // $filteredFiles = array_filter($files, function($file) use ($contribution) {
+                //     return basename($file) === $contribution->file;
+                // });
+                foreach($files as $file){
+                    $nameInZipFile = basename($file);
+                    $zip->addFile($file, $nameInZipFile);
+                }
+                $zip->close();
+            }
+
+            return response()->download($fileName);
+        } catch (\Exception $e){
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

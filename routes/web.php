@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\RoleController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -53,5 +54,6 @@ Route::resource('events', EventController::class);
 
 //Route Contribution
 Route::resource('contributions', ContributionController::class);
+Route::get('contributions/download/{id}', [ContributionController::class, 'download'])->name('contributions.download');
 
 
