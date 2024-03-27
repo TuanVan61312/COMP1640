@@ -81,14 +81,14 @@
 
                                         {{-- fuction update --}}
                                         <td>
-                                                <a href="{{ route('events.edit', [$con->id]) }}">
+                                                <a href="{{ route('contributions.edit', [$con->id]) }}">
                                                     <i class="fa-sharp fa-light fa-pen-to-square"></i>
                                                 </a>
                                         </td>
                                         {{-- Update end --}}
 
                                         <td>
-                                            <a href="{{ route('contributions.download', [$con->id]) }}" class="btn btn-primary">Zip File Dowload</a>
+                                            <a href="{{ route('contributions.download', [$con->id]) }}" class="btn btn-primary">Zip File Dowload #{{ $con->id }}</a>
                                         </td>
                                     </tr>
                                 @endforeach

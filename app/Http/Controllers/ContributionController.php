@@ -49,12 +49,7 @@ class ContributionController extends Controller
             'file' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png',
             'event_id' => 'required|integer',
         ]);
-
-        // if ($request->hasFile('file')) {
-        //     $file = $request->file('file')->getClientOriginalName();
-        //     $request->file('file')->move(public_path('uploads'), $file);
-        // }
-
+        
         if ($request->hasFile('file')) {
             $file = $request->file('file');
     
@@ -95,7 +90,8 @@ class ContributionController extends Controller
      */
     public function edit($id)
     {
-        //
+        $contribution = Contribution::find($id);
+        return view('admin.contribution.edit', compact('contribution'));
     }
 
     /**
@@ -107,7 +103,43 @@ class ContributionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+    // Validate other fields
+    $validatedData = $request->validate([
+        'user_id' => 'required|integer',
+        'faculty_id' => 'required|integer',
+        'title' => 'required|string|max:50',
+        'description' => 'required|string',
+        'file' => 'nullable|mimes:doc,docx,pdf,jpg,jpeg,png',
+        'event_id' => 'required|integer',
+    ]);
+
+    // Tìm đối tượng Contribution dựa trên id
+    $contribution = Contribution::findOrFail($id);
+
+    // Kiểm tra và xóa file cũ nếu có
+    if ($request->hasFile('file')) {
+        $oldFilePath = public_path('storage/' . $contribution->file);
+
+        if (file_exists($oldFilePath)) {
+            unlink($oldFilePath); // Xóa file cũ
+        }
+
+        // Xử lý và lưu trữ file mới
+        $file = $request->file('file');
+        $fileName = time() . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('storage'), $fileName);
+
+        // Cập nhật mảng validatedData với đường dẫn file mới
+        $validatedData['file'] = $fileName;
+    }
+
+    // Set submitted_on field to current time
+    $validatedData['submitted_on'] = Carbon::now();
+
+    // Cập nhật dữ liệu của đóng góp
+    $contribution->update($validatedData);
+
+    return redirect()->route('contributions.index')->with('success', 'Contribution updated successfully');
     }
 
     /**
@@ -121,37 +153,29 @@ class ContributionController extends Controller
         //
     }
 
-    public function download(Contribution $contribution){
+    public function download($id){
         try {
-            $filePath = $contribution->file;
-            $fullFilePath = public_path('storage' . $filePath);
-    
-            if (!file_exists($fullFilePath)) {
-                return response()->json(['error' => 'File không tồn tại'], 404);
-            }
-    
+            // Tìm đối tượng Contribution
+            $contributions = Contribution::findOrFail($id);
+            
+            // Tạo tên tập tin ZIP
+            $zipFileName = 'contributions_' . $contributions->user->name . '_' . now()->format('YmdHis') . '.zip';
+            $zipFilePath = public_path($zipFileName);
+            
+            // Khởi tạo đối tượng ZipArchive
             $zip = new ZipArchive();
-            $fileName = "my-zip-file.zip";
-
-            // $files = File::files($fullFilePath);
-            //     $filteredFiles = array_filter($files, function($file) use ($contribution) {
-            //         return basename($file) === $contribution->file;
-            //     });
-
-            if($zip->open($fileName, ZipArchive::CREATE)){
-                $files = File::files($fullFilePath);
-                // $filteredFiles = array_filter($files, function($file) use ($contribution) {
-                //     return basename($file) === $contribution->file;
-                // });
-                foreach($files as $file){
-                    $nameInZipFile = basename($file);
-                    $zip->addFile($file, $nameInZipFile);
+            if ($zip->open($zipFilePath, ZipArchive::CREATE) === true) {
+                // Thêm tệp đã tải lên vào tập tin ZIP
+                $filePath = public_path('storage/' . $contributions->file);
+                if (File::exists($filePath)) {
+                    $zip->addFile($filePath, $contributions->file);
                 }
                 $zip->close();
             }
-
-            return response()->download($fileName);
-        } catch (\Exception $e){
+    
+            // Trả về tệp ZIP cho người dùng
+            return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
